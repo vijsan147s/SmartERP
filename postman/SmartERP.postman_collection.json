@@ -1,0 +1,1232 @@
+{
+  "info": {
+    "_postman_id": "smarterp-api-collection-001",
+    "name": "SmartERP API",
+    "description": "Complete API collection for SmartERP - Smart Business & College Resource Management System",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "12345678"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "description": "Authentication and authorization endpoints for login, logout, token refresh, and user profile management.",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.access_token) {",
+                  "    pm.collectionVariables.set('token', jsonData.access_token);",
+                  "    pm.collectionVariables.set('refresh_token', jsonData.refresh_token);",
+                  "    console.log('Tokens saved successfully');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"Admin@123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Authenticate user with username and password. Returns access token and refresh token."
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/refresh?refresh_token={{refresh_token}}",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "refresh"],
+              "query": [
+                {
+                  "key": "refresh_token",
+                  "value": "{{refresh_token}}",
+                  "description": "The refresh token received during login"
+                }
+              ]
+            },
+            "description": "Refresh an expired access token using the refresh token."
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "logout"]
+            },
+            "description": "Logout current user and invalidate the access token."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "me"]
+            },
+            "description": "Get the currently authenticated user's profile information."
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_password\": \"Admin@123\",\n  \"new_password\": \"NewAdmin@123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/change-password",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "change-password"]
+            },
+            "description": "Change the current user's password. Requires current password for verification."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Roles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/roles",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "roles"]
+            },
+            "description": "Get all available roles in the system."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Students",
+      "description": "Student management endpoints for CRUD operations on student records.",
+      "item": [
+        {
+          "name": "Get All Students",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/students?search=&department_id=&semester=&page=1&page_size=10",
+              "host": ["{{base_url}}"],
+              "path": ["students"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Search by name, email, or student ID"
+                },
+                {
+                  "key": "department_id",
+                  "value": "",
+                  "description": "Filter by department ID"
+                },
+                {
+                  "key": "semester",
+                  "value": "",
+                  "description": "Filter by semester"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number for pagination"
+                },
+                {
+                  "key": "page_size",
+                  "value": "10",
+                  "description": "Number of records per page"
+                }
+              ]
+            },
+            "description": "Get paginated list of all students with optional search and filters."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Student by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/students/1",
+              "host": ["{{base_url}}"],
+              "path": ["students", "1"]
+            },
+            "description": "Get a specific student by their ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Student",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"student_id\": \"STU2024001\",\n  \"email\": \"john.doe@smarterp.com\",\n  \"username\": \"johndoe\",\n  \"full_name\": \"John Doe\",\n  \"phone\": \"+91-9876543210\",\n  \"department_id\": 1,\n  \"course\": \"B.Tech Computer Science\",\n  \"semester\": 1,\n  \"enrollment_date\": \"2024-08-15\",\n  \"password\": \"Student@123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/students",
+              "host": ["{{base_url}}"],
+              "path": ["students"]
+            },
+            "description": "Create a new student record with all required details."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Student",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Updated Name\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/students/1",
+              "host": ["{{base_url}}"],
+              "path": ["students", "1"]
+            },
+            "description": "Update an existing student's information. Only provided fields will be updated."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Student",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/students/1",
+              "host": ["{{base_url}}"],
+              "path": ["students", "1"]
+            },
+            "description": "Delete a student record. This action is irreversible."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Employees",
+      "description": "Employee management endpoints for CRUD operations on employee records.",
+      "item": [
+        {
+          "name": "Get All Employees",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/employees",
+              "host": ["{{base_url}}"],
+              "path": ["employees"]
+            },
+            "description": "Get list of all employees."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Employee by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/employees/1",
+              "host": ["{{base_url}}"],
+              "path": ["employees", "1"]
+            },
+            "description": "Get a specific employee by their ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Employee",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"employee_id\": \"EMP2024001\",\n  \"email\": \"jane.smith@smarterp.com\",\n  \"username\": \"janesmith\",\n  \"full_name\": \"Jane Smith\",\n  \"department_id\": 1,\n  \"designation\": \"Senior Professor\",\n  \"joining_date\": \"2024-01-10\",\n  \"salary\": 75000,\n  \"password\": \"Employee@123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/employees",
+              "host": ["{{base_url}}"],
+              "path": ["employees"]
+            },
+            "description": "Create a new employee record with all required details."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Employee",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"designation\": \"Associate Professor\",\n  \"salary\": 85000\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/employees/1",
+              "host": ["{{base_url}}"],
+              "path": ["employees", "1"]
+            },
+            "description": "Update an existing employee's information."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Employee",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/employees/1",
+              "host": ["{{base_url}}"],
+              "path": ["employees", "1"]
+            },
+            "description": "Delete an employee record. This action is irreversible."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Departments",
+      "description": "Department management endpoints for CRUD operations on department records.",
+      "item": [
+        {
+          "name": "Get All Departments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/departments",
+              "host": ["{{base_url}}"],
+              "path": ["departments"]
+            },
+            "description": "Get list of all departments."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Department by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/departments/1",
+              "host": ["{{base_url}}"],
+              "path": ["departments", "1"]
+            },
+            "description": "Get a specific department by its ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Department",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Physics\",\n  \"code\": \"PHY\",\n  \"description\": \"Physics Dept\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/departments",
+              "host": ["{{base_url}}"],
+              "path": ["departments"]
+            },
+            "description": "Create a new department."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Department",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Physics Sciences\",\n  \"description\": \"Department of Physics Sciences\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/departments/1",
+              "host": ["{{base_url}}"],
+              "path": ["departments", "1"]
+            },
+            "description": "Update an existing department's information."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Department",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/departments/1",
+              "host": ["{{base_url}}"],
+              "path": ["departments", "1"]
+            },
+            "description": "Delete a department. This action is irreversible."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Attendance",
+      "description": "Attendance management endpoints for tracking student attendance records.",
+      "item": [
+        {
+          "name": "Get All Attendance",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/attendance?student_id=&date_from=&date_to=&status=",
+              "host": ["{{base_url}}"],
+              "path": ["attendance"],
+              "query": [
+                {
+                  "key": "student_id",
+                  "value": "",
+                  "description": "Filter by student ID"
+                },
+                {
+                  "key": "date_from",
+                  "value": "",
+                  "description": "Start date filter (YYYY-MM-DD)"
+                },
+                {
+                  "key": "date_to",
+                  "value": "",
+                  "description": "End date filter (YYYY-MM-DD)"
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "Filter by status (PRESENT, ABSENT, LATE)"
+                }
+              ]
+            },
+            "description": "Get attendance records with optional filters for student, date range, and status."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Attendance",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"student_id\": 1,\n  \"date\": \"2024-11-15\",\n  \"status\": \"PRESENT\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/attendance",
+              "host": ["{{base_url}}"],
+              "path": ["attendance"]
+            },
+            "description": "Record attendance for a student. Status can be PRESENT, ABSENT, or LATE."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Attendance",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"LATE\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/attendance/1",
+              "host": ["{{base_url}}"],
+              "path": ["attendance", "1"]
+            },
+            "description": "Update an existing attendance record."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Attendance",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/attendance/1",
+              "host": ["{{base_url}}"],
+              "path": ["attendance", "1"]
+            },
+            "description": "Delete an attendance record."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Daily Attendance",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/attendance/daily",
+              "host": ["{{base_url}}"],
+              "path": ["attendance", "daily"]
+            },
+            "description": "Get today's attendance summary for all students."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Student Attendance Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/attendance/stats/student/1",
+              "host": ["{{base_url}}"],
+              "path": ["attendance", "stats", "student", "1"]
+            },
+            "description": "Get attendance statistics for a specific student including percentage and summary."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Fees",
+      "description": "Fee management endpoints for student fee records and payment tracking.",
+      "item": [
+        {
+          "name": "Get All Fees",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/fees",
+              "host": ["{{base_url}}"],
+              "path": ["fees"]
+            },
+            "description": "Get list of all fee records."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Fee by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/fees/1",
+              "host": ["{{base_url}}"],
+              "path": ["fees", "1"]
+            },
+            "description": "Get a specific fee record by its ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Fee",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"student_id\": 1,\n  \"academic_year\": \"2024-25\",\n  \"semester\": 1,\n  \"total_amount\": 50000\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/fees",
+              "host": ["{{base_url}}"],
+              "path": ["fees"]
+            },
+            "description": "Create a new fee record for a student."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Fee",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"total_amount\": 55000\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/fees/1",
+              "host": ["{{base_url}}"],
+              "path": ["fees", "1"]
+            },
+            "description": "Update an existing fee record."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Fee",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/fees/1",
+              "host": ["{{base_url}}"],
+              "path": ["fees", "1"]
+            },
+            "description": "Delete a fee record."
+          },
+          "response": []
+        },
+        {
+          "name": "Make Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fee_id\": 1,\n  \"amount\": 20000,\n  \"payment_date\": \"2024-11-15\",\n  \"payment_method\": \"UPI\",\n  \"receipt_number\": \"RCP001\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/fees/1/payments",
+              "host": ["{{base_url}}"],
+              "path": ["fees", "1", "payments"]
+            },
+            "description": "Record a payment against a fee record. Payment methods: UPI, CASH, CARD, BANK_TRANSFER, CHEQUE."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Fee Payments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/fees/1/payments",
+              "host": ["{{base_url}}"],
+              "path": ["fees", "1", "payments"]
+            },
+            "description": "Get all payments made against a specific fee record."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Fees Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/fees/dashboard",
+              "host": ["{{base_url}}"],
+              "path": ["fees", "dashboard"]
+            },
+            "description": "Get fee collection dashboard with summary statistics."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Results",
+      "description": "Results and academic performance management endpoints.",
+      "item": [
+        {
+          "name": "Get All Results",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/results",
+              "host": ["{{base_url}}"],
+              "path": ["results"]
+            },
+            "description": "Get list of all student results."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Result by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/results/1",
+              "host": ["{{base_url}}"],
+              "path": ["results", "1"]
+            },
+            "description": "Get a specific result by its ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Result",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"student_id\": 1,\n  \"subject_id\": 1,\n  \"semester\": 1,\n  \"internal_marks\": 25,\n  \"external_marks\": 60\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/results",
+              "host": ["{{base_url}}"],
+              "path": ["results"]
+            },
+            "description": "Create a new result record for a student in a subject."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Result",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"internal_marks\": 28,\n  \"external_marks\": 65\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/results/1",
+              "host": ["{{base_url}}"],
+              "path": ["results", "1"]
+            },
+            "description": "Update an existing result record."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Result",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/results/1",
+              "host": ["{{base_url}}"],
+              "path": ["results", "1"]
+            },
+            "description": "Delete a result record."
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Subjects",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/results/subjects",
+              "host": ["{{base_url}}"],
+              "path": ["results", "subjects"]
+            },
+            "description": "Get list of all subjects."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Subject",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"CS101\",\n  \"name\": \"Programming\",\n  \"semester\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/results/subjects",
+              "host": ["{{base_url}}"],
+              "path": ["results", "subjects"]
+            },
+            "description": "Create a new subject."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Student Results by Semester",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/results/student/1/semester/1",
+              "host": ["{{base_url}}"],
+              "path": ["results", "student", "1", "semester", "1"]
+            },
+            "description": "Get all results for a specific student in a specific semester."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "description": "Reporting endpoints for generating various system reports and analytics.",
+      "item": [
+        {
+          "name": "Dashboard Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/reports/dashboard",
+              "host": ["{{base_url}}"],
+              "path": ["reports", "dashboard"]
+            },
+            "description": "Get main dashboard report with overall system statistics."
+          },
+          "response": []
+        },
+        {
+          "name": "Students Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/reports/students",
+              "host": ["{{base_url}}"],
+              "path": ["reports", "students"]
+            },
+            "description": "Generate students report with enrollment statistics and demographics."
+          },
+          "response": []
+        },
+        {
+          "name": "Employees Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/reports/employees",
+              "host": ["{{base_url}}"],
+              "path": ["reports", "employees"]
+            },
+            "description": "Generate employees report with department-wise distribution."
+          },
+          "response": []
+        },
+        {
+          "name": "Attendance Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/reports/attendance",
+              "host": ["{{base_url}}"],
+              "path": ["reports", "attendance"]
+            },
+            "description": "Generate attendance report with present/absent/late statistics."
+          },
+          "response": []
+        },
+        {
+          "name": "Fees Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/reports/fees",
+              "host": ["{{base_url}}"],
+              "path": ["reports", "fees"]
+            },
+            "description": "Generate fees report with collection statistics and outstanding amounts."
+          },
+          "response": []
+        },
+        {
+          "name": "Departments Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/reports/departments",
+              "host": ["{{base_url}}"],
+              "path": ["reports", "departments"]
+            },
+            "description": "Generate departments report with student and employee distribution."
+          },
+          "response": []
+        },
+        {
+          "name": "Academic Performance Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/reports/academic-performance",
+              "host": ["{{base_url}}"],
+              "path": ["reports", "academic-performance"]
+            },
+            "description": "Generate academic performance report with pass/fail rates and grade distribution."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
