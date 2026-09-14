@@ -9,5 +9,6 @@ backend/__pycache__/
 .coverage
 .env
 *.log
+.vscode/
 .DS_Store
 Thumbs.db
